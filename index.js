@@ -3,9 +3,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import dns from "dns";
 import Student from "./models/Student.js";
 
 dotenv.config();
+
+// Use public DNS so MongoDB Atlas SRV records resolve reliably
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const app = express();
 
@@ -98,22 +102,24 @@ app.get("/api/students/:id", async (req, res, next) => {
 // Create student
 app.post("/api/students", async (req, res, next) => {
   try {
-    const { name, email, semester, section } = req.body;
+    const { name, rollNo, email, semester, section } = req.body;
 
     if (
       !name?.trim() ||
+      !rollNo?.trim() ||
       !email?.trim() ||
       semester === undefined ||
       !section?.trim()
     ) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, semester and section are required",
+        message: "Name, roll no, email, semester and section are required",
       });
     }
 
     const student = await Student.create({
       name: name.trim(),
+      rollNo: rollNo.trim(),
       email: email.trim().toLowerCase(),
       semester,
       section: section.trim(),
@@ -141,12 +147,13 @@ app.put("/api/students/:id", async (req, res, next) => {
       });
     }
 
-    const { name, email, semester, section } = req.body;
+    const { name, rollNo, email, semester, section } = req.body;
 
     const student = await Student.findByIdAndUpdate(
       id,
       {
         ...(name !== undefined && { name: name.trim() }),
+        ...(rollNo !== undefined && { rollNo: rollNo.trim() }),
         ...(email !== undefined && {
           email: email.trim().toLowerCase(),
         }),

@@ -102,7 +102,7 @@ app.get("/api/students/:id", async (req, res, next) => {
 // Create student
 app.post("/api/students", async (req, res, next) => {
   try {
-    const { name, rollNo, email, semester, section } = req.body;
+    const { name, fatherName, rollNo, email, semester, section } = req.body;
 
     if (
       !name?.trim() ||
@@ -119,6 +119,7 @@ app.post("/api/students", async (req, res, next) => {
 
     const student = await Student.create({
       name: name.trim(),
+      fatherName: fatherName?.trim(),
       rollNo: rollNo.trim(),
       email: email.trim().toLowerCase(),
       semester,
@@ -147,12 +148,13 @@ app.put("/api/students/:id", async (req, res, next) => {
       });
     }
 
-    const { name, rollNo, email, semester, section } = req.body;
+    const { name, fatherName, rollNo, email, semester, section } = req.body;
 
     const student = await Student.findByIdAndUpdate(
       id,
       {
         ...(name !== undefined && { name: name.trim() }),
+        ...(fatherName !== undefined && { fatherName: fatherName.trim() }),
         ...(rollNo !== undefined && { rollNo: rollNo.trim() }),
         ...(email !== undefined && {
           email: email.trim().toLowerCase(),
